@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#define TEK_MALLOC malloc
 #define TEK_REALLOC realloc
 #define TEK_FREE free
 
