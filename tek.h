@@ -136,7 +136,6 @@ void tek_flag_description_ctx(TekFlagContext *ctx, char *description);
 void tek_flag_print();
 void tek_flag_print_ctx(TekFlagContext *ctx);
 
-#define TEK_IMPLEMENTATION // TODO: Remove this line
 #ifdef TEK_IMPLEMENTATION
 #include <stdio.h>
 #include <string.h>
