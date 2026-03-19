@@ -1,6 +1,7 @@
 #ifndef TEK_H_
 #define TEK_H_
 
+#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -90,6 +91,11 @@ typedef struct TekFlagContext TekFlagContext;
 struct TekFlagContext {
   TekFlag *items;
   size_t length, capacity;
+
+  char *program;
+  char *description;
+  char *error;
+  int error_index;
 };
 
 bool *tek_flag_bool(const char *name, const char *help, bool _default);
@@ -120,6 +126,13 @@ void tek_flag_ctx_cstr_var(TekFlagContext *ctx, const char *name, const char *he
 bool tek_flag_parse(int argc, char *argv[]);
 bool tek_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[]);
 
+char *tek_flag_error();
+TekFlag *tek_flag_error_flag();
+
+void tek_flag_program(char *program);
+void tek_flag_program_ctx(TekFlagContext *ctx, char *program);
+void tek_flag_description(char *description);
+void tek_flag_description_ctx(TekFlagContext *ctx, char *description);
 void tek_flag_print();
 void tek_flag_print_ctx(TekFlagContext *ctx);
 
@@ -127,6 +140,7 @@ void tek_flag_print_ctx(TekFlagContext *ctx);
 #ifdef TEK_IMPLEMENTATION
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 static TekFlagContext global_flag_context;
 
@@ -233,6 +247,7 @@ void tek_flag_ctx_cstr_var(TekFlagContext *ctx, const char *name, const char *he
 bool tek_flag_parse(int argc, char *argv[]) { return tek_flag_parse_ctx(&global_flag_context, argc, argv); }
 bool tek_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
 {
+  if (!ctx->program) ctx->program = argv[0];
   argc--; argv++;
 
   while (argc > 0) {
@@ -256,7 +271,7 @@ bool tek_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
         continue;
       }
 
-      // TODO: Handle errors when parsing
+      char *end;
       switch (f->kind) {
         case Bool:
           if (equals != NULL) {
@@ -280,27 +295,66 @@ bool tek_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
             argc--; argv++;
             equals = argv[0];
           }
-          *(uint64_t*)f->ref = strtoull(equals, NULL, 10);
+          if (equals == NULL) {
+            ctx->error = "Missing value in integer flag.";
+            ctx->error_index = i;
+            return false;
+          }
+
+          *(uint64_t*)f->ref = strtoull(equals, &end, 10);
+          if (errno != 0 || *end != '\0') {
+            ctx->error = "Failed to parse value in integer flag.";
+            ctx->error_index = i;
+            return false;
+          }
         break;
         case Float:
           if (equals == NULL) {
             argc--; argv++;
             equals = argv[0];
           }
-          *(float*)f->ref = strtof(equals, NULL);
+          if (equals == NULL) {
+            ctx->error = "Missing value in float flag.";
+            ctx->error_index = i;
+            return false;
+          }
+
+          *(float*)f->ref = strtof(equals, &end);
+          if (errno != 0 || *end != '\0') {
+            ctx->error = "Failed to parse value in float flag.";
+            ctx->error_index = i;
+            return false;
+          }
         break;
         case Double:
           if (equals == NULL) {
             argc--; argv++;
             equals = argv[0];
           }
-          *(double*)f->ref = strtod(equals, NULL);
+          if (equals == NULL) {
+            ctx->error = "Missing value in double flag.";
+            ctx->error_index = i;
+            return false;
+          }
+
+          *(double*)f->ref = strtod(equals, &end);
+          if (errno != 0 || *end != '\0') {
+            ctx->error = "Failed to parse value in double flag.";
+            ctx->error_index = i;
+            return false;
+          }
         break;
         case Cstr:
           if (equals == NULL) {
             argc--; argv++;
             equals = argv[0];
           }
+          if (equals == NULL) {
+            ctx->error = "Missing value in cstr flag.";
+            ctx->error_index = i;
+            return false;
+          }
+
           *(char**)f->ref = equals;
         break;
       }
@@ -313,10 +367,46 @@ bool tek_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
   return true;
 }
 
+char *tek_flag_error() { return global_flag_context.error; }
+TekFlag *tek_flag_error_flag() { return &global_flag_context.items[global_flag_context.error_index]; }
+
+void tek_flag_program(char *program) { tek_flag_program_ctx(&global_flag_context, program); }
+void tek_flag_program_ctx(TekFlagContext *ctx, char *program) { ctx->program = program; }
+void tek_flag_description(char *description) { tek_flag_description_ctx(&global_flag_context, description); }
+void tek_flag_description_ctx(TekFlagContext *ctx, char *description) { ctx->description = description; }
+
 void tek_flag_print() { tek_flag_print_ctx(&global_flag_context); }
 void tek_flag_print_ctx(TekFlagContext *ctx)
 {
-  // TODO: Implement
+  if (ctx->program) printf("%s\n", ctx->program);
+  if (ctx->description) printf("%s\n\n", ctx->description);
+
+  for (int i = 0; i < ctx->length; i++) {
+    TekFlag *flag = ctx->items + i;
+    printf("\t--%s ", flag->name);
+    switch (flag->kind) {
+      case Bool:
+        printf("(default: %s)\n", flag->_default.as_bool ? "true" : "false");
+      break;
+      case Int:
+        printf("(default: %" PRIu64 ")\n", flag->_default.as_int);
+      break;
+      case Float:
+        printf("(default: %f)\n", flag->_default.as_float);
+      break;
+      case Double:
+        printf("(default: %f)\n", flag->_default.as_double);
+      break;
+      case Cstr:
+        if (flag->_default.as_cstr) {
+          printf("(default: \"%s\")\n", flag->_default.as_cstr);
+        } else {
+          printf("(default: null)\n");
+        }
+      break;
+    }
+    printf("\t\t%s\n\n", flag->help);
+  }
 }
 
 #endif // !TEK_IMPLEMENTATION
