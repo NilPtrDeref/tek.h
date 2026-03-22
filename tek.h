@@ -1,7 +1,6 @@
 #ifndef TEK_H_
 #define TEK_H_
 
-#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -140,6 +139,7 @@ void tek_flag_print_ctx(TekFlagContext *ctx);
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <errno.h>
 
 static TekFlagContext global_flag_context;
 
