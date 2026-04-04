@@ -9,18 +9,19 @@
 #define TEK_ASSERT assert
 #endif
 
+// Thanks to stb libs for this trick!
+#if defined(TEK_MALLOC) && defined(TEK_FREE) && defined(TEK_REALLOC)
+// ok
+#elif !defined(TEK_MALLOC) && !defined(TEK_FREE) && !defined(TEK_REALLOC)
+// ok
+#else
+#error "Must define all or none of TEK_MALLOC, TEK_FREE, and TEK_REALLOC."
+#endif
+
 #ifndef TEK_MALLOC
 #include <stdlib.h>
 #define TEK_MALLOC malloc
-#endif
-
-#ifndef TEK_REALLOC
-#include <stdlib.h>
 #define TEK_REALLOC realloc
-#endif
-
-#ifndef TEK_FREE
-#include <stdlib.h>
 #define TEK_FREE free
 #endif
 
