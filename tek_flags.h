@@ -126,14 +126,14 @@ void tekf_ctx_cstr_var(TekFlagContext *ctx, const char *name, const char *help, 
 bool tekf_parse(int argc, char *argv[]);
 bool tekf_parse_ctx(TekFlagContext *ctx, int argc, char *argv[]);
 
-char *tekf_error();
-TekFlag *tekf_error_flag();
+char *tekf_error(void);
+TekFlag *tekf_error_flag(void);
 
 void tekf_program(char *program);
 void tekf_program_ctx(TekFlagContext *ctx, char *program);
 void tekf_description(char *description);
 void tekf_description_ctx(TekFlagContext *ctx, char *description);
-void tekf_print();
+void tekf_print(void);
 void tekf_print_ctx(TekFlagContext *ctx);
 
 #ifdef TEK_FLAGS_IMPLEMENTATION
@@ -367,15 +367,15 @@ bool tekf_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
   return true;
 }
 
-char *tekf_error() { return global_flag_context.error; }
-TekFlag *tekf_error_flag() { return &global_flag_context.items[global_flag_context.error_index]; }
+char *tekf_error(void) { return global_flag_context.error; }
+TekFlag *tekf_error_flag(void) { return &global_flag_context.items[global_flag_context.error_index]; }
 
 void tekf_program(char *program) { tekf_program_ctx(&global_flag_context, program); }
 void tekf_program_ctx(TekFlagContext *ctx, char *program) { ctx->program = program; }
 void tekf_description(char *description) { tekf_description_ctx(&global_flag_context, description); }
 void tekf_description_ctx(TekFlagContext *ctx, char *description) { ctx->description = description; }
 
-void tekf_print() { tekf_print_ctx(&global_flag_context); }
+void tekf_print(void) { tekf_print_ctx(&global_flag_context); }
 void tekf_print_ctx(TekFlagContext *ctx)
 {
   if (ctx->program) printf("%s\n", ctx->program);
