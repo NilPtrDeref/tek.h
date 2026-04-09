@@ -67,7 +67,7 @@ typedef enum {
   Float,
   Double,
   Cstr,
-} TekFlagKind;
+} TekcFlagKind;
 
 typedef union {
   bool as_bool;
@@ -75,21 +75,21 @@ typedef union {
   float as_float;
   double as_double;
   char *as_cstr;
-} TekFlagValue;
+} TekcFlagValue;
 
-typedef struct TekFlag TekFlag;
-struct TekFlag {
-  TekFlagKind kind;
-  TekFlagValue value;
-  TekFlagValue _default;
+typedef struct TekcFlag TekcFlag;
+struct TekcFlag {
+  TekcFlagKind kind;
+  TekcFlagValue value;
+  TekcFlagValue _default;
   void *ref;
   const char *name;
   const char *help;
 };
 
-typedef struct TekFlagContext TekFlagContext;
-struct TekFlagContext {
-  TekFlag *items;
+typedef struct TekcFlagContext TekcFlagContext;
+struct TekcFlagContext {
+  TekcFlag *items;
   size_t length, capacity;
 
   char *program;
@@ -99,42 +99,42 @@ struct TekFlagContext {
 };
 
 bool *tekc_flag_bool(const char *name, const char *help, bool _default);
-bool *tekc_flag_ctx_bool(TekFlagContext *ctx, const char *name, const char *help, bool _default);
+bool *tekc_flag_ctx_bool(TekcFlagContext *ctx, const char *name, const char *help, bool _default);
 void tekc_flag_bool_var(const char *name, const char *help, bool *variable, bool _default);
-void tekc_flag_ctx_bool_var(TekFlagContext *ctx, const char *name, const char *help, bool *variable, bool _default);
+void tekc_flag_ctx_bool_var(TekcFlagContext *ctx, const char *name, const char *help, bool *variable, bool _default);
 
 uint64_t *tekc_flag_int(const char *name, const char *help, uint64_t _default);
-uint64_t *tekc_flag_ctx_int(TekFlagContext *ctx, const char *name, const char *help, uint64_t _default);
+uint64_t *tekc_flag_ctx_int(TekcFlagContext *ctx, const char *name, const char *help, uint64_t _default);
 void tekc_flag_int_var(const char *name, const char *help, uint64_t *variable, uint64_t _default);
-void tekc_flag_ctx_int_var(TekFlagContext *ctx, const char *name, const char *help, uint64_t *variable, uint64_t _default);
+void tekc_flag_ctx_int_var(TekcFlagContext *ctx, const char *name, const char *help, uint64_t *variable, uint64_t _default);
 
 float *tekc_flag_float(const char *name, const char *help, float _default);
-float *tekc_flag_ctx_float(TekFlagContext *ctx, const char *name, const char *help, float _default);
+float *tekc_flag_ctx_float(TekcFlagContext *ctx, const char *name, const char *help, float _default);
 void tekc_flag_float_var(const char *name, const char *help, float *variable, float _default);
-void tekc_flag_ctx_float_var(TekFlagContext *ctx, const char *name, const char *help, float *variable, float _default);
+void tekc_flag_ctx_float_var(TekcFlagContext *ctx, const char *name, const char *help, float *variable, float _default);
 
 double *tekc_flag_double(const char *name, const char *help, double _default);
-double *tekc_flag_ctx_double(TekFlagContext *ctx, const char *name, const char *help, double _default);
+double *tekc_flag_ctx_double(TekcFlagContext *ctx, const char *name, const char *help, double _default);
 void tekc_flag_double_var(const char *name, const char *help, double *variable, double _default);
-void tekc_flag_ctx_double_var(TekFlagContext *ctx, const char *name, const char *help, double *variable, double _default);
+void tekc_flag_ctx_double_var(TekcFlagContext *ctx, const char *name, const char *help, double *variable, double _default);
 
 char **tekc_flag_cstr(const char *name, const char *help, const char *_default);
-char **tekc_flag_ctx_cstr(TekFlagContext *ctx, const char *name, const char *help, const char *_default);
+char **tekc_flag_ctx_cstr(TekcFlagContext *ctx, const char *name, const char *help, const char *_default);
 void tekc_flag_cstr_var(const char *name, const char *help, char **variable, const char *_default);
-void tekc_flag_ctx_cstr_var(TekFlagContext *ctx, const char *name, const char *help, char **variable, const char *_default);
+void tekc_flag_ctx_cstr_var(TekcFlagContext *ctx, const char *name, const char *help, char **variable, const char *_default);
 
 bool tekc_flag_parse(int argc, char *argv[]);
-bool tekc_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[]);
+bool tekc_flag_parse_ctx(TekcFlagContext *ctx, int argc, char *argv[]);
 
 char *tekc_flag_error(void);
-TekFlag *tekc_flag_error_flag(void);
+TekcFlag *tekc_flag_error_flag(void);
 
 void tekc_flag_program(char *program);
-void tekc_flag_program_ctx(TekFlagContext *ctx, char *program);
+void tekc_flag_program_ctx(TekcFlagContext *ctx, char *program);
 void tekc_flag_description(char *description);
-void tekc_flag_description_ctx(TekFlagContext *ctx, char *description);
+void tekc_flag_description_ctx(TekcFlagContext *ctx, char *description);
 void tekc_flag_print(void);
-void tekc_flag_print_ctx(TekFlagContext *ctx);
+void tekc_flag_print_ctx(TekcFlagContext *ctx);
 
 #ifdef TEK_CMDLINE_IMPLEMENTATION
 #include <stdio.h>
@@ -142,12 +142,12 @@ void tekc_flag_print_ctx(TekFlagContext *ctx);
 #include <inttypes.h>
 #include <errno.h>
 
-static TekFlagContext global_flag_context;
+static TekcFlagContext global_flag_context;
 
-static TekFlag *tekc_flag_new_flag(TekFlagContext *ctx, TekFlagKind kind, const char *name, const char *help) {
-  TekFlag flag = {0};
+static TekcFlag *tekc_flag_new_flag(TekcFlagContext *ctx, TekcFlagKind kind, const char *name, const char *help) {
+  TekcFlag flag = {0};
   tekc_slice_append(ctx, flag);
-  TekFlag* f = &ctx->items[ctx->length-1];
+  TekcFlag* f = &ctx->items[ctx->length-1];
   f->kind = kind;
   f->name = name;
   f->help = help;
@@ -155,97 +155,97 @@ static TekFlag *tekc_flag_new_flag(TekFlagContext *ctx, TekFlagKind kind, const 
 }
 
 bool *tekc_flag_bool(const char *name, const char *help, bool _default) { return tekc_flag_ctx_bool(&global_flag_context, name, help, _default); }
-bool *tekc_flag_ctx_bool(TekFlagContext *ctx, const char *name, const char *help, bool _default)
+bool *tekc_flag_ctx_bool(TekcFlagContext *ctx, const char *name, const char *help, bool _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Bool, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Bool, name, help);
   f->ref = &f->value.as_bool;
   *(bool*)f->ref = _default;
   f->_default.as_bool = _default;
   return f->ref;
 }
 void tekc_flag_bool_var(const char *name, const char *help, bool *variable, bool _default) { tekc_flag_ctx_bool_var(&global_flag_context, name, help, variable, _default); }
-void tekc_flag_ctx_bool_var(TekFlagContext *ctx, const char *name, const char *help, bool *variable, bool _default)
+void tekc_flag_ctx_bool_var(TekcFlagContext *ctx, const char *name, const char *help, bool *variable, bool _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Bool, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Bool, name, help);
   f->ref = variable;
   *(bool*)f->ref = _default;
   f->_default.as_bool = _default;
 }
 
 uint64_t *tekc_flag_int(const char *name, const char *help, uint64_t _default) { return tekc_flag_ctx_int(&global_flag_context, name, help, _default); }
-uint64_t *tekc_flag_ctx_int(TekFlagContext *ctx, const char *name, const char *help, uint64_t _default)
+uint64_t *tekc_flag_ctx_int(TekcFlagContext *ctx, const char *name, const char *help, uint64_t _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Int, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Int, name, help);
   f->ref = &f->value.as_int;
   *(uint64_t*)f->ref = _default;
   f->_default.as_int = _default;
   return f->ref;
 }
 void tekc_flag_int_var(const char *name, const char *help, uint64_t *variable, uint64_t _default) { tekc_flag_ctx_int_var(&global_flag_context, name, help, variable, _default); }
-void tekc_flag_ctx_int_var(TekFlagContext *ctx, const char *name, const char *help, uint64_t *variable, uint64_t _default)
+void tekc_flag_ctx_int_var(TekcFlagContext *ctx, const char *name, const char *help, uint64_t *variable, uint64_t _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Int, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Int, name, help);
   f->ref = variable;
   *(uint64_t*)f->ref = _default;
   f->_default.as_int = _default;
 }
 
 float *tekc_flag_float(const char *name, const char *help, float _default) { return tekc_flag_ctx_float(&global_flag_context, name, help, _default); }
-float *tekc_flag_ctx_float(TekFlagContext *ctx, const char *name, const char *help, float _default)
+float *tekc_flag_ctx_float(TekcFlagContext *ctx, const char *name, const char *help, float _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Float, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Float, name, help);
   f->ref = &f->value.as_float;
   *(float*)f->ref = _default;
   f->_default.as_float = _default;
   return f->ref;
 }
 void tekc_flag_float_var(const char *name, const char *help, float *variable, float _default) { tekc_flag_ctx_float_var(&global_flag_context, name, help, variable, _default); }
-void tekc_flag_ctx_float_var(TekFlagContext *ctx, const char *name, const char *help, float *variable, float _default)
+void tekc_flag_ctx_float_var(TekcFlagContext *ctx, const char *name, const char *help, float *variable, float _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Float, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Float, name, help);
   f->ref = variable;
   *(float*)f->ref = _default;
   f->_default.as_float = _default;
 }
 
 double *tekc_flag_double(const char *name, const char *help, double _default) { return tekc_flag_ctx_double(&global_flag_context, name, help, _default); }
-double *tekc_flag_ctx_double(TekFlagContext *ctx, const char *name, const char *help, double _default)
+double *tekc_flag_ctx_double(TekcFlagContext *ctx, const char *name, const char *help, double _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Double, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Double, name, help);
   f->ref = &f->value.as_double;
   *(double*)f->ref = _default;
   f->_default.as_double = _default;
   return f->ref;
 }
 void tekc_flag_double_var(const char *name, const char *help, double *variable, double _default) { tekc_flag_ctx_double_var(&global_flag_context, name, help, variable, _default); }
-void tekc_flag_ctx_double_var(TekFlagContext *ctx, const char *name, const char *help, double *variable, double _default)
+void tekc_flag_ctx_double_var(TekcFlagContext *ctx, const char *name, const char *help, double *variable, double _default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Double, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Double, name, help);
   f->ref = variable;
   *(double*)f->ref = _default;
   f->_default.as_double = _default;
 }
 
 char **tekc_flag_cstr(const char *name, const char *help, const char *_default) { return tekc_flag_ctx_cstr(&global_flag_context, name, help, _default); }
-char **tekc_flag_ctx_cstr(TekFlagContext *ctx, const char *name, const char *help, const char *_default)
+char **tekc_flag_ctx_cstr(TekcFlagContext *ctx, const char *name, const char *help, const char *_default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Cstr, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Cstr, name, help);
   f->ref = &f->value.as_cstr;
   *(char**)f->ref = (char*)_default;
   f->_default.as_cstr = (char*)_default;
   return f->ref;
 }
 void tekc_flag_cstr_var(const char *name, const char *help, char **variable, const char *_default) { tekc_flag_ctx_cstr_var(&global_flag_context, name, help, variable, _default); }
-void tekc_flag_ctx_cstr_var(TekFlagContext *ctx, const char *name, const char *help, char **variable, const char *_default)
+void tekc_flag_ctx_cstr_var(TekcFlagContext *ctx, const char *name, const char *help, char **variable, const char *_default)
 {
-  TekFlag *f = tekc_flag_new_flag(ctx, Cstr, name, help);
+  TekcFlag *f = tekc_flag_new_flag(ctx, Cstr, name, help);
   f->ref = variable;
   *(char**)f->ref = (char*)_default;
   f->_default.as_cstr = (char*)_default;
 }
 
 bool tekc_flag_parse(int argc, char *argv[]) { return tekc_flag_parse_ctx(&global_flag_context, argc, argv); }
-bool tekc_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
+bool tekc_flag_parse_ctx(TekcFlagContext *ctx, int argc, char *argv[])
 {
   if (!ctx->program) ctx->program = argv[0];
   argc--; argv++;
@@ -266,7 +266,7 @@ bool tekc_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
     }
 
     for (int i = 0; i < ctx->length; i++) {
-      TekFlag *f = ctx->items + i;
+      TekcFlag *f = ctx->items + i;
       if (strcmp(flag, f->name) != 0) {
         continue;
       }
@@ -368,21 +368,21 @@ bool tekc_flag_parse_ctx(TekFlagContext *ctx, int argc, char *argv[])
 }
 
 char *tekc_flag_error(void) { return global_flag_context.error; }
-TekFlag *tekc_flag_error_flag(void) { return &global_flag_context.items[global_flag_context.error_index]; }
+TekcFlag *tekc_flag_error_flag(void) { return &global_flag_context.items[global_flag_context.error_index]; }
 
 void tekc_flag_program(char *program) { tekc_flag_program_ctx(&global_flag_context, program); }
-void tekc_flag_program_ctx(TekFlagContext *ctx, char *program) { ctx->program = program; }
+void tekc_flag_program_ctx(TekcFlagContext *ctx, char *program) { ctx->program = program; }
 void tekc_flag_description(char *description) { tekc_flag_description_ctx(&global_flag_context, description); }
-void tekc_flag_description_ctx(TekFlagContext *ctx, char *description) { ctx->description = description; }
+void tekc_flag_description_ctx(TekcFlagContext *ctx, char *description) { ctx->description = description; }
 
 void tekc_flag_print(void) { tekc_flag_print_ctx(&global_flag_context); }
-void tekc_flag_print_ctx(TekFlagContext *ctx)
+void tekc_flag_print_ctx(TekcFlagContext *ctx)
 {
   if (ctx->program) printf("%s\n", ctx->program);
   if (ctx->description) printf("%s\n\n", ctx->description);
 
   for (int i = 0; i < ctx->length; i++) {
-    TekFlag *flag = ctx->items + i;
+    TekcFlag *flag = ctx->items + i;
     printf("\t--%s ", flag->name);
     switch (flag->kind) {
       case Bool:
